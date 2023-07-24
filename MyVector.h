@@ -2,6 +2,7 @@
 #define _MYVECTOR_H_
 
 #include <initializer_list>
+#include <algorithm>
 
 template<typename T>
 class MyVector
@@ -131,8 +132,7 @@ public:
 	ReverseIterator crend() { return ReverseIterator(&arr[-1]); }
 
 	// inserts before given element
-	Iterator insert(Iterator& where_, const T& val);
-	Iterator emplace(const T& val);
+	Iterator insert(Iterator where_, const T& val);
 	Iterator erase(const Iterator&);
 
 	void clear() noexcept { size_ = 0; }
@@ -334,20 +334,29 @@ inline void MyVector<T>::swap(MyVector<T>& r)
 }
 
 template<typename T>
-inline MyVector<T>::Iterator MyVector<T>::insert(Iterator& where_, const T& val)
+inline typename MyVector<T>::Iterator MyVector<T>::insert(Iterator where_, const T& val)
 {
-	if (size_ + 1 > capacity_)
+	reserve(size_ + 1);
+	auto i = end();
+	for (; i != where_; i--)
 	{
+		*i = *(i - 1);
+	}
+	*i = val;
+	size_++;
+	return i;
+}
 
-	}
-	else
+template<typename T>
+inline typename MyVector<T>::Iterator MyVector<T>::erase(const Iterator& where_)
+{
+	Iterator i = where_;
+	for (; i != end(); i++)
 	{
-		for (size_t i = size_; i >= 0; i--)
-		{
-			arr[i] = arr[i - 1];
-		}
-		arr[]
+		*i = *(i + 1);
 	}
+	size_--;
+	return i;
 }
 
 #endif // _MYVECTOR_H_
