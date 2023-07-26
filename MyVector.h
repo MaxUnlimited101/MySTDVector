@@ -12,14 +12,22 @@ private:
 	size_t size_;
 	size_t capacity_;
 public:
+	// Default c-tor. Sets the capacity to 5
 	MyVector();
+	// Copy c-tor
 	MyVector(const MyVector<T>& v);
+	// Move c-tor
 	MyVector(MyVector<T>&& v);
+	// 
 	MyVector(const std::initializer_list<T>& l);
 	~MyVector();
+	// Add element to the end
 	void push_back(const T& value);
+	// Remove element from the end
 	void pop_back();
+	// Returns the size of the vector
 	size_t size() const noexcept { return size_; }
+	// Returns the capacity of the vector
 	size_t capacity() const noexcept { return capacity_; }
 
 	struct Iterator {
@@ -53,7 +61,9 @@ public:
 	private:
 		pointer m_ptr;
 	};
+	// Returns the iterator pointing to first element
 	Iterator begin() { return Iterator(&arr[0]); }
+	// Returns the iterator pointing to the element after the last
 	Iterator end() { return Iterator(&arr[size_]); }
 
 	struct ConstIterator {
@@ -78,7 +88,9 @@ public:
 		pointer m_ptr;
 
 	};
+	// Returns the constant iterator pointing to first element
 	ConstIterator cbegin() { return ConstIterator(&arr[0]); }
+	// Returns the constant iterator pointing to the element after the last
 	ConstIterator cend() { return ConstIterator(&arr[size_]); }
 
 	struct ReverseIterator {
@@ -103,7 +115,9 @@ public:
 		pointer m_ptr;
 
 	};
+	// Returns the reverse iterator pointing to first element
 	ReverseIterator rbegin() { return ReverseIterator(&arr[size_ - 1]); }
+	// Returns the reverse iterator pointing to the element after the last
 	ReverseIterator rend() { return ReverseIterator(&arr[-1]); }
 
 	struct ConstReverseIterator {
@@ -128,27 +142,45 @@ public:
 		pointer m_ptr;
 
 	};
+	// Returns the constant reverse iterator pointing to first element
 	ReverseIterator crbegin() { return ReverseIterator(&arr[size_ - 1]); }
+	// Returns the constant reverse iterator pointing to the element after the last
 	ReverseIterator crend() { return ReverseIterator(&arr[-1]); }
 
-	// inserts before given element
+	// Inserts "val" before the given element
 	Iterator insert(Iterator where_, const T& val);
+	// Erases the given element
 	Iterator erase(const Iterator&);
 
+	// Clears the vector
 	void clear() noexcept { size_ = 0; }
+	// Assigns the new size to the vector and assigns the new value to every element
 	void assign(size_t newSize, const T& value);
+	// Guranteed to throw std::index_out_of_range if index is out of bounds
 	T at(size_t index) const;
+	// Returns the last element of the vector
 	const T& back() { return at(size_ - 1); }
+	// Returns the first element of the vector
 	const T& front() { return at(0); }
+	// Returns the C-style array
 	const T* data() const noexcept{ return arr; }
+	// Returns true if the vector is empty
 	bool empty() const noexcept { return size_ == 0; }
+	// Assingment operator
 	MyVector<T>& operator= (const MyVector<T>& r);
+	// Move assignment operator
 	MyVector<T>& operator= (MyVector<T>&& r);
+	// At-index operator which return the reference on the element
 	T& operator[] (size_t index) { return arr[index]; }
+	// At-index operator which return the element
 	const T& operator[] (size_t index) const { return arr[index]; }
+	// Reserves the new capacity in the RAM
 	void reserve(size_t newCapacity);
+	// Changes the size of the vector. Internally calls reserve(size_t). Doesn't change the new elements
 	void resize(size_t newSize);
+	// Make the capacity equal to the size of the vector
 	void shrink_to_fit();
+	// Swaps current vector with the given one
 	void swap(MyVector<T>& r);
 };
 
