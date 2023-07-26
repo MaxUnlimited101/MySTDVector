@@ -12,13 +12,15 @@ private:
 	size_t size_;
 	size_t capacity_;
 public:
+	struct Iterator;
 	// Default c-tor. Sets the capacity to 5
 	MyVector();
 	// Copy c-tor
 	MyVector(const MyVector<T>& v);
 	// Move c-tor
 	MyVector(MyVector<T>&& v);
-	// 
+	// Iterator c-tor
+	MyVector(Iterator begin_, Iterator end_);
 	MyVector(const std::initializer_list<T>& l);
 	~MyVector();
 	// Add element to the end
@@ -50,7 +52,7 @@ public:
 		friend Iterator operator+(difference_type n, const Iterator& a) { return a.m_ptr + n; }
 		friend Iterator operator-(const Iterator& a, difference_type n) { return a.m_ptr - n; }
 		friend Iterator operator-(difference_type n, const Iterator& a) { return a.m_ptr - n; }
-		friend difference_type operator-(const Iterator& a, const Iterator& b) { return b.m_ptr - a.m_ptr; }
+		friend difference_type operator-(const Iterator& a, const Iterator& b) { return a.m_ptr - b.m_ptr; }
 		Iterator& operator+=(difference_type n) { return (m_ptr += n); }
 		Iterator& operator-=(difference_type n) { return (m_ptr -= n); }
 		T operator[](difference_type n) { return *(m_ptr + n); }
@@ -169,7 +171,7 @@ public:
 	// Assingment operator
 	MyVector<T>& operator= (const MyVector<T>& r);
 	// Move assignment operator
-	MyVector<T>& operator= (MyVector<T>&& r);
+	MyVector<T>& operator= (MyVector<T>&& r) noexcept;
 	// At-index operator which return the reference on the element
 	T& operator[] (size_t index) { return arr[index]; }
 	// At-index operator which return the element
@@ -182,8 +184,38 @@ public:
 	void shrink_to_fit();
 	// Swaps current vector with the given one
 	void swap(MyVector<T>& r);
+	// Comparison operator 
+	template <typename T>
+	friend bool operator==(const MyVector<T>& l, const MyVector<T>& r);
+	friend bool operator!=(const MyVector<T>& l, const MyVector<T>& r) { return !(l == r); }
 };
 
+
+template<typename T>
+inline MyVector<T>::MyVector(Iterator begin_, Iterator end_) : arr(nullptr), size_(end_ - begin_), capacity_((end_ - begin_) + 5)
+{
+	arr = new T[capacity_];
+	size_t t = 0;
+	for (auto i = begin_; i != end_; i++)
+	{
+		arr[t] = *i;
+		t++;
+	}
+}
+
+template<typename T>
+inline bool operator==(const MyVector<T>& l, const MyVector<T>& r)
+{
+	if (l.size_ != r.size_)
+		return false;
+
+	for (size_t i = 0; i < l.size_; i++)
+	{
+		if (l.arr[i] != r.arr[i])
+			return false;
+	}
+	return true;
+}
 
 template<typename T>
 inline MyVector<T>::MyVector() : arr(nullptr), size_(0), capacity_(5)
@@ -212,7 +244,7 @@ inline MyVector<T>::MyVector(const std::initializer_list<T>& l) : arr(nullptr), 
 {
 	arr = new T[capacity_];
 	size_t i = 0;
-	for (auto t : l)
+	for (auto& t : l)
 	{
 		arr[i] = t;
 		i++;
@@ -296,15 +328,13 @@ inline MyVector<T>& MyVector<T>::operator=(const MyVector<T>& r)
 	capacity_ = r.capacity_;
 
 	arr = new T[capacity_];
-	if (!arr)
-		throw std::bad_alloc;
 	for (size_t i = 0; i < size_; i++)
 		arr[i] = r.arr[i];
 	return *this;
 }
 
 template<typename T>
-inline MyVector<T>& MyVector<T>::operator=(MyVector<T>&& r)
+inline MyVector<T>& MyVector<T>::operator=(MyVector<T>&& r) noexcept
 {
 	if (&r == this)
 		return *this;
@@ -314,8 +344,9 @@ inline MyVector<T>& MyVector<T>::operator=(MyVector<T>&& r)
 	capacity_ = r.capacity_;
 
 	arr = r.arr;
-	for (size_t i = 0; i < size_; i++)
-		arr[i] = r.arr[i];
+	r.arr = nullptr;
+	r.size_ = 0;
+	r.capacity_ = 0;
 	return *this;
 }
 
